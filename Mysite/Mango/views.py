@@ -1,16 +1,14 @@
 from django.shortcuts import render
 from .models import BGRemover
 from .forms import UploadFileForm
-from django.http import HttpResponseRedirect
 from django.http import HttpResponse
-# from django.shortcuts import get_object_or_404
-# obj = get_object_or_404(BGRemover, id=1)
-
+from rembg import remove
+from PIL import Image
 
 
 def index(request):
-    #print(BGRemover.objects.all().values())
-    #BGRemover.objects.all().delete()
+    # print(BGRemover.objects.all().values())
+    # BGRemover.objects.all().delete()
     return render(request, 'index.html')
 
 def BgRemove(request):
@@ -19,7 +17,11 @@ def BgRemove(request):
         if form.is_valid():
             f = form.save()
             image = f.Image
-            return render(request, 'test.html', {'form': form, 'image':image})
+            input_img = Image.open(image)
+            output = remove(input_img)
+            output_path = 'media/remove_bg/img1.png'
+            output.save(output_path)
+            return render(request, 'test.html', {'form': form, 'image':image,'output':output_path})
     else:
         form = UploadFileForm()
         return render(request, 'test.html',{'form': form})
